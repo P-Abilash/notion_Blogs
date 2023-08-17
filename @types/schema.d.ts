@@ -1,12 +1,12 @@
 export type Category = {
     color: string
     id: string
-    name: string 
+    name: string
 }
 
 export type BlogPost = {
     id: string
-    slug: string 
+    slug: string
     cover: string
     title: string
     category: Category[]
