@@ -1,3 +1,4 @@
+import BlogCard from "@/components/BlogCard";
 import {GetStaticProps, InferGetStaticPropsType} from "next";
 import Head from "next/head";
 import {BlogPost} from "../@types/schema";
@@ -36,7 +37,10 @@ const Home = ({posts}: InferGetStaticPropsType<typeof getStaticProps>) => {
                         <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-2 lg:max-w-none">
                              {
           posts.map((post:BlogPost)=>(
-            <p key={post.id}>Blog Post component will go here:{post.title}</p>
+          
+            // <p key={post.id}>The Title of the blog: {post.title}</p>
+              
+           <BlogCard key={post.id} post={post}/>
           ))
         }
 

@@ -1,4 +1,4 @@
-export type Tag = {
+export type Category = {
     color: string
     id: string
     name: string
@@ -9,7 +9,7 @@ export type BlogPost = {
     slug: string
     cover: string
     title: string
-    tags: Tag[];
+    category: Category[];
     description: string
     date: string
 }

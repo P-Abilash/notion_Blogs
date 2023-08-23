@@ -30,7 +30,8 @@ export default class NotionService {
                     direction: 'descending'
                 }
             ]
-        });         
+        });  
+               
         return response.results.map(res => {
             return NotionService.pageToPostTransformer(res);
         })
@@ -42,9 +43,9 @@ export default class NotionService {
     private static pageToPostTransformer(page: any): BlogPost {
         console.log("Page data:", page);
 
-        
         let cover = page.cover;
         console.log("cover data",cover)
+ 
         switch (cover.type) {
             case 'file':
                 cover = page.cover.file
@@ -64,7 +65,7 @@ export default class NotionService {
             id: page.id,
             cover: cover,
             title: page.properties.Name.title[0].plain_text,
-            tags: page.properties.Tags.multi_select,
+            category: page.properties.Category.multi_select,
             description: page.properties.Description.rich_text[0].plain_text,
             date: page.properties.Updated.last_edited_time,
             slug: page.properties.Slug.formula.string
