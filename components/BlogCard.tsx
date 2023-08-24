@@ -1,4 +1,3 @@
-
 import { FunctionComponent } from "react";
 import Link from "next/link";
 import { BlogPost } from "../@types/schema";
@@ -50,10 +49,3 @@ const BlogCard: FunctionComponent<BlogCardProps> = ({ post }) => {
 };
 
 export default BlogCard;
-
-
-
-  
-
-
-

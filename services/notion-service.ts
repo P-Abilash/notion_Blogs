@@ -1,6 +1,6 @@
-import { Client } from "@notionhq/client";
-import { BlogPost } from "../@types/schema";
-import { NotionToMarkdown } from "notion-to-md";
+import {Client} from "@notionhq/client";
+import {BlogPost, PostPage} from "../@types/schema";
+import {NotionToMarkdown} from "notion-to-md";
 
 export default class NotionService {
     client: Client
@@ -9,13 +9,12 @@ export default class NotionService {
     constructor() {
         this.client = new Client({ auth: process.env.NOTION_ACCESS_TOKEN });
         this.n2m = new NotionToMarkdown({ notionClient: this.client });
+        
     }
 
     async getPublishedBlogPosts(): Promise<BlogPost[]> {
         const database = process.env.NOTION_BLOG_DATABASE_ID ?? '';
         // list blog posts
-        console.log('id of the databse',database);
-        
         const response = await this.client.databases.query({
             database_id: database,
             filter: {
@@ -30,34 +29,75 @@ export default class NotionService {
                     direction: 'descending'
                 }
             ]
-        });  
-               
+        });
+
         return response.results.map(res => {
             return NotionService.pageToPostTransformer(res);
         })
-        
     }
 
 
 
-    private static pageToPostTransformer(page: any): BlogPost {
-        console.log("Page data:", page);
+    async getSingleBlogPost(slug: string): Promise<PostPage> {
+        let post, markdown ;
+         
+        const database = process.env.NOTION_BLOG_DATABASE_ID ?? '';
+        // list of blog posts
+        const response = await this.client.databases.query({
+            database_id: database,
+            filter: {
+                property: 'Slug',
+                formula: {
+                    text: {
+                        equals: slug // slug
+                    }
+                },
+                // add option for tags in the future
+            },
+            sorts: [
+                {
+                    property: 'Updated',
+                    direction: 'descending'
+                }
+            ]
+        });
 
+        if (!response.results[0]) {
+            throw 'No results available'
+        }
+
+        // grab page from notion
+        const page = response.results[0];
+
+        const mdBlocks = await this.n2m.pageToMarkdown(page.id)
+        markdown = this.n2m.toMarkdownString(mdBlocks);
+        post = NotionService.pageToPostTransformer(page);
+
+        return {
+            post,
+            markdown
+        }
+    }
+
+
+
+
+
+
+    private static pageToPostTransformer(page: any): BlogPost {
         let cover = page.cover;
-        console.log("cover data",cover)
- 
+        console.log(cover)
+
+
         switch (cover.type) {
             case 'file':
                 cover = page.cover.file
-                console.log(cover);
-                
                 break;
             case 'external':
                 cover = page.cover.external.url;
-                console.log(cover);
-                
                 break;
             default:
+                // Add default cover image if you want...
                 cover = ''
         }
 
@@ -70,9 +110,11 @@ export default class NotionService {
             date: page.properties.Updated.last_edited_time,
             slug: page.properties.Slug.formula.string
         }
+
+        
+      
+         
+
+
     }
 }
-
-
-
-
